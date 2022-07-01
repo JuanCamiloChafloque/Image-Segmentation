@@ -8,6 +8,8 @@
 #include "Imagen.h"
 #include "Volumen.h"
 #include "HuffmanTree.h"
+#include "Graph.h"
+#include "Semilla.h"
 
 int main(int argc, char *argv[])
 {
@@ -218,6 +220,62 @@ int main(int argc, char *argv[])
 
       arbol->decodificarArchivo(archivo_huffman, archivo_ppm);
     }
+    else if (strcmp(comando, "segmentar") == 0)
+    {
+      if (cargoImagen)
+      {
+        char *nom_archivo = new char[1048];
+        comando = strtok(NULL, " ");
+        strcpy(nom_archivo, comando);
+        comando = strtok(NULL, " ");
+
+        std::stringstream arch(nom_archivo);
+        std::string archivo_ppm;
+        arch >> archivo_ppm;
+
+        std::vector<Semilla> semillas;
+        Semilla semilla;
+        int contSemilla = 0;
+
+        while (comando != NULL)
+        {
+          std::stringstream seg(comando);
+          unsigned short s;
+          seg >> s;
+
+          if (contSemilla == 0)
+          {
+            semilla.setX(s);
+            contSemilla++;
+          }
+          else if (contSemilla == 1)
+          {
+            semilla.setY(s);
+            contSemilla++;
+          }
+          else if (contSemilla == 2)
+          {
+            semilla.setL(s);
+            contSemilla++;
+          }
+
+          if (contSemilla == 3)
+          {
+            contSemilla = 0;
+            semillas.push_back(semilla);
+          }
+
+          comando = strtok(NULL, " ");
+        }
+
+        Grafo<int, double> *grafo = new Grafo<int, double>(imagen); // Key: Coordenada (Ej. 20,20)
+        grafo->crearGrafo(semillas, archivo_ppm);
+      }
+      else
+      {
+        std::cout << "\nNo se ha cargado una imagen. " << std::endl;
+      }
+    }
     else if (strcmp(comando, "help") == 0)
     {
       std::cout << "\nComandos Disponibles: " << std::endl;
@@ -228,6 +286,7 @@ int main(int argc, char *argv[])
       std::cout << "\n proyeccion2D <direccion> <criterio> <nombre_archivo.pgm> ";
       std::cout << "\n codificar_imagen <nombre_archivo.huffman>";
       std::cout << "\n decodificar_archivo <nombre_archivo.huffman> <nombre_imagen.pgm>";
+      std::cout << "\n segmentar <salida_imagen.pgm> <semillas>...";
       std::cout << "\n salir" << std::endl
                 << std::endl;
     }

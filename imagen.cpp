@@ -35,6 +35,11 @@ bool Imagen::leerImagen(std::string archivo_ppm)
 
     while (getline(file, linea))
     {
+      if (linea.length() == 0)
+      {
+        continue;
+      }
+
       if (primero)
       {
         char *copia = new char[linea.length() + 1];
@@ -129,7 +134,15 @@ bool Imagen::leerImagen(std::string archivo_ppm)
 
 void Imagen::inicializar()
 {
-  this->pixeles = std::vector<std::vector<unsigned short>>(this->W, std::vector<unsigned short>(this->H, 0));
+  this->pixeles = std::vector<std::vector<unsigned short>>(this->H, std::vector<unsigned short>(this->W, 0));
+  for (int i = 0; i < this->H; i++)
+  {
+    for (int j = 0; j < this->W; j++)
+    {
+      double max = 100000;
+      this->distancias.push_back(max);
+    }
+  }
 }
 
 void Imagen::setPixel(unsigned short &i, unsigned short &j, unsigned short &p)
@@ -185,4 +198,14 @@ void Imagen::setM(const unsigned short &pM)
 void Imagen::setNombre(const std::string &pNombre)
 {
   this->nombre = pNombre;
+}
+
+void Imagen::setDistancia(int index, double val)
+{
+  this->distancias[index] = val;
+}
+
+double Imagen::getDistancia(int index)
+{
+  return this->distancias[index];
 }
